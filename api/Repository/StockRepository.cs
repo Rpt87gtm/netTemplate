@@ -1,6 +1,7 @@
 ﻿using api.Data;
 using api.Dtos.Stock;
 using api.Helpers;
+using api.Helpers.Pagination;
 using api.Interfaces;
 using api.Models;
 using Microsoft.EntityFrameworkCore;
@@ -10,17 +11,19 @@ namespace api.Repository
     public class StockRepository : IStockRepository
     {
         private ApplicationDBContext _context;
+        private Paginator _paginator;
 
         public StockRepository(ApplicationDBContext context)
         {
             _context = context;
+            _paginator = new Paginator();
         }
-        public async Task<List<Stock>> GetAllAsync(QueryObject query)
+        public async Task<List<Stock>> GetAllAsync(QueryObject query, QueryPage queryPage)
         {
             var stock = _context.Stock.Include(c => c.Comments).AsQueryable();
-            stock = UseQueryParameters(stock, query);
 
-            
+            stock = UseQueryParameters(stock, query);
+            stock = _paginator.Paginate(stock, queryPage);
             
             return await stock.ToListAsync();
         }
@@ -29,8 +32,9 @@ namespace api.Repository
 
             var updatedStock = stock;
 
-            updatedStock = updatedStock.Where(s => (query.Symbol == null || query.Symbol == "" || s.Symbol.ToLower().Contains(query.Symbol.ToLower())))
-                         .Where(s => (query.CompanyName == null || query.CompanyName == "" || s.CompanyName.ToLower().Contains(query.CompanyName.ToLower())));
+            updatedStock = updatedStock
+                .Where(s => (query.Symbol == null || query.Symbol == "" || s.Symbol.ToLower().Contains(query.Symbol.ToLower())))
+                .Where(s => (query.CompanyName == null || query.CompanyName == "" || s.CompanyName.ToLower().Contains(query.CompanyName.ToLower())));
             
             if (!String.IsNullOrWhiteSpace(query.SortBy))
             {

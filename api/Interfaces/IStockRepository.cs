@@ -1,12 +1,13 @@
 ﻿using api.Dtos.Stock;
 using api.Helpers;
+using api.Helpers.Pagination;
 using api.Models;
 
 namespace api.Interfaces
 {
     public interface IStockRepository
     {
-        Task<List<Stock>> GetAllAsync(QueryObject query);
+        Task<List<Stock>> GetAllAsync(QueryObject query, QueryPage queryPage);
         Task<Stock?> GetByIdAsync(int id);
 
         Task<Stock> CreateAsync(Stock stockModel); 
