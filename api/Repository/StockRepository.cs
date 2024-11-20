@@ -18,15 +18,28 @@ namespace api.Repository
         public async Task<List<Stock>> GetAllAsync(QueryObject query)
         {
             var stock = _context.Stock.Include(c => c.Comments).AsQueryable();
+            stock = UseQueryParameters(stock, query);
 
-            if (!String.IsNullOrWhiteSpace(query.Symbol)) {
-                stock = stock.Where(s => s.Symbol.Contains(query.Symbol));
-            }
-            if (!String.IsNullOrWhiteSpace(query.CompanyName))
-            {
-                stock = stock.Where(s => s.Symbol.Contains(query.CompanyName));
-            }
+            
+            
             return await stock.ToListAsync();
+        }
+
+        private IQueryable<Stock> UseQueryParameters(IQueryable<Stock> stock, QueryObject query) {
+
+            var updatedStock = stock;
+
+            updatedStock = updatedStock.Where(s => (query.Symbol == null || query.Symbol == "" || s.Symbol.ToLower().Contains(query.Symbol.ToLower())))
+                         .Where(s => (query.CompanyName == null || query.CompanyName == "" || s.CompanyName.ToLower().Contains(query.CompanyName.ToLower())));
+            
+            if (!String.IsNullOrWhiteSpace(query.SortBy))
+            {
+                if (query.SortBy.Equals("Symbol", StringComparison.OrdinalIgnoreCase))
+                {
+                    updatedStock = query.IdDecsending ? updatedStock.OrderByDescending(s => s.Symbol) : updatedStock.OrderBy(s => s.Symbol);
+                }
+            }
+            return updatedStock;
         }
 
         public async Task<Stock?> GetByIdAsync(int id)
