@@ -13,7 +13,7 @@ namespace api.Dtos.Stock
         public string Industry { get; set; } = string.Empty;
         public long MarketCup { get; set; }
 
-        public List<CommentDto> Comments { get; set; }
+        public List<CommentDto> Comments { get; set; } = new List<CommentDto>();
         
     }
 }

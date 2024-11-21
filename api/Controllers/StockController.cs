@@ -4,6 +4,7 @@ using api.Helpers;
 using api.Helpers.Pagination;
 using api.Interfaces;
 using api.Mappers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -28,6 +29,7 @@ namespace api.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAll([FromQuery] QueryObject query, [FromQuery] QueryPage queryPage){
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
